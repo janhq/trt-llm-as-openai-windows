@@ -16,7 +16,7 @@ Ensure you have the pre-requisites in place:
    * [CodeLlama-13b-Instruct-hf](https://huggingface.co/codellama/CodeLlama-13b-Instruct-hf)
    * [Llama-2-13b-chat-hf](https://huggingface.co/meta-llama/Llama-2-13b-chat-hf)
 
-4. In this repo, we provide instructions to set up an OpenAI API compatible server with either the LLama 2 13B or Code Llama 13B model, both optimized using AWQ 4-bit quantization. To begin, it's necessary to compile a TensorRT Engine tailored to your specific GPU. Refer to the given instructions for constructing your TRT Engine [instructions](#building-trt-engine).
+3. In this repo, we provide instructions to set up an OpenAI API compatible server with either the LLama 2 13B or Code Llama 13B model, both optimized using AWQ 4-bit quantization. To begin, it's necessary to compile a TensorRT Engine tailored to your specific GPU. Refer to the given instructions for constructing your TRT Engine [instructions](#building-trt-engine).
 
 <h3 id="building-trt-engine">Building TRT Engine</h3>
 
@@ -130,26 +130,24 @@ Arguments
    2. Click "+" to add new model
    3. Select "Other OpenAI-compatible API"
    4. Expand "Advanced (optional)"
-      1. server_url: update to local host url like ```http://localhost:8081/v1```
-      2. update context_length: ```16384```
+      1. apiBase: update to local host url like ```http://localhost:8081/v1```
+      2. update contextLength: ```16384```
    5. Select CodeLlama 13b instruct option 
-   6. Press "Configure Model in config.py"
-4. Alternatively config.py can be modified directly to include below
-   1. Open ```c:\users\<user>\.continue\config.py``` in any editor
+4. Alternatively config.json can be modified directly to include below
+   1. Open ```c:\users\<user>\.continue\config.json``` in any editor
    2. Add below model config
-      ```
-      from continuedev.libs.llm.ggml import GGML
-      ...
-      config = ContinueConfig(
-       allow_anonymous_telemetry=False,
-       models=Models(
-               default=GGML(
-                  title="CodeLlama-13b-Instruct",
-                  model="codellama:13b-instruct",
-                  context_length=16384,
-                  server_url="http://localhost:8081"
-               ),
-      ...
+      ```json
+      {
+         "models": [
+            {
+               "title": "CodeLlama-13b-Instruct",
+               "provider": "openai",
+               "model": "codellama:13b-instruct",
+               "apiBase": "http://localhost:8081",
+               "contextLength": 16384,
+            }
+         ]
+      }
       ```
 
 This project requires additional third-party open source software projects as specified in the documentation. Review the license terms of these open source projects before use.
