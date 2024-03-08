@@ -9,13 +9,14 @@ In this note, I will share about Jan integration with TensorRT-LLM on Windows
 ## Version compatibility
 
 - Windows 11, NVIDIA GPU 3090 (GPU arch: `80-real`/ `sm80`)
-- Tensorrt_LLM 0.7.1 (not the latest now at 0.8.0)
-- Python 3.10
-- Cuda 12.2.2_537.13
-- CuDNN 8.9.7.29
-- VS 17
-- MSFT MPI v10.1.1
-- TensorRT 9.2.0.5
+- Tensorrt_LLM 0.7.1 (not the latest now at 0.8.0) - See in [detail](https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/)
+- Python 3.10 [Installation](https://www.python.org/ftp/python/3.10.11/python-3.10.11-amd64.exe -OutFile python-3.10.11.exe)
+- Cuda 12.2.2_537.13 [Download](https://developer.download.nvidia.com/compute/cuda/12.2.2/local_installers/cuda_12.2.2_537.13_windows.exe)
+- Cuda 11 NVTX (no cuda 11 installation)
+- CuDNN 8.9.7.29 [Download](https://developer.nvidia.com/downloads/compute/cudnn/secure/8.9.7/local_installers/12.x/cudnn-windows-x86_64-8.9.7.29_cuda12-archive.zip/)
+- VS 17 [Download](https://aka.ms/vs/17/release/vs_buildtools.exe)
+- MSFT MPI v10.1.1 [Download](https://github.com/microsoft/Microsoft-MPI/releases/download/v10.1.1/msmpisetup.exe)
+- TensorRT 9.2.0.5 [Download](https://developer.nvidia.com/downloads/compute/machine-learning/tensorrt/9.2.0/tensorrt-9.2.0.5.windows10.x86_64.cuda-12.2.llm.beta.zip)
 
 ## Preparation for TensorRT-LLM
 
@@ -137,6 +138,7 @@ python build.py --model_dir <> --quant_ckpt_path <> --dtype float16 --use_gpt_at
   - CUDA 12: [Download](https://developer.download.nvidia.com/compute/cuda/12.2.2/local_installers/cuda_12.2.2_537.13_windows.exe)
   - CVTX: [Download](https://drive.google.com/file/d/1-pZ2vY1crveDxdojeklfC9nMS3Uph6E3/view?usp=sharing) - or you can install CUDA 11.2 and untick everything except for Nsight CVTX and copy the folder to this folder with the name as `NvToolsExt`
   - CuDNN 8.9.7: [Download](https://developer.nvidia.com/downloads/compute/cudnn/secure/8.9.7/local_installers/12.x/cudnn-windows-x86_64-8.9.7.29_cuda12-archive.zip/) then unzip to this folder
+  - TensorRT 9.2.0.5 [Download](https://developer.nvidia.com/downloads/compute/machine-learning/tensorrt/9.2.0/tensorrt-9.2.0.5.windows10.x86_64.cuda-12.2.llm.beta.zip)
 - Step 3: Run `docker build tensorrt_llm_windows .`. This will prepare the environment for `TensorRT-LLM` automatically. See [Dockerfile](./Dockerfile)
 - Step 4: Run `docker run -ti -p 8080:8080 tensorrt_llm_windows`. This will run `entrypoint.ps1` by default to install `tensorrt_llm` here because `tensorrt_llm` python installation requires GPU access, only `docker run` can provide it
 
