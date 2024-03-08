@@ -123,6 +123,12 @@ python build.py --model_dir <> --quant_ckpt_path <> --dtype float16 --use_gpt_at
 
 ### Windows Container
 
+- Updates
+
+  - Hiro with the help from Hien/ Alan found out that NVIDIA GPU cannot be used in passthrough mode on Windows 11:
+    - Windows Docker Desktop only supports out of the box NVIDIA GPU passthrough with WSL2 with Linux runtime (not Windows runtime backed by Hyper-V)
+    - For Windows container runtime backed by Hyper-V, there is [support](https://learn.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/gpu-acceleration) however it's only on `Windows Server 2019 or Windows 10, version 1809 or newer` and only supported with `mcr.microsoft.com/windows:1809` or newer. `Windows Server Core and Nano Server` container images are not currently supported. The [support](https://github.com/docker/roadmap/issues/505) is still underway and open.
+
 - Step 1: Prepare Docker Desktop on Windows
   - Download the Docker Desktop from [Docker Desktop for Windows](https://docs.docker.com/desktop/install/windows-install/)
   - Check for Hyper-V support, please refer to this [documentation on windows 11](https://techcommunity.microsoft.com/t5/educator-developer-blog/step-by-step-enabling-hyper-v-for-use-on-windows-11/ba-p/3745905)
