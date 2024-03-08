@@ -21,14 +21,15 @@ In this note, I will share about Jan integration with TensorRT-LLM on Windows
 
 ### Windows Bare-Metal
 
-- Given the excellent documentation at [README from NVIDIA team](./README.md), here is the steps:
-- [ ] Step 1. Download external dependencies (Can follow this [documentation in TensorRT-LLM 0.7.1](https://github.com/NVIDIA/TensorRT-LLM/tree/v0.7.1/windows#quick-start))
-  - [ ] Step 3.1: Run [setup_env.ps1](https://github.com/NVIDIA/TensorRT-LLM/blob/v0.7.1/windows/setup_env.ps1) to install CUDA 12, Python 3.10 and Microsoft MPI
-  - [ ] Step 3.2: Download [TensorRT 9.2.0.5](https://developer.nvidia.com/downloads/compute/machine-learning/tensorrt/9.2.0/tensorrt-9.2.0.5.windows10.x86_64.cuda-12.2.llm.beta.zip), unzip it and run `setx Path "%Path%;C:\<specific_path>\TensorRT-9.2.0.5\lib"` in order for `TensorRT-LLM` to be able to use. Then run `pip install TensorRT-9.2.0.5\python\tensorrt-9.2.0.post12.dev5-cp310-none-win_amd64.whl` to install Python TensorRT. Test the installation by running `python -c "import tensorrt as trt; print(trt.__version__)"`
-  - [ ] Step 3.3: Install TensorRT-LLM by running quick command `pip install tensorrt_llm==0.7.1 --extra-index-url https://pypi.nvidia.com  --extra-index-url https://download.pytorch.org/whl/cu121` and verify the installation by running `python -c "import tensorrt_llm; print(tensorrt_llm._utils.trt_version())"`
+Given the excellent documentation at [README from NVIDIA team](./README.md), here is the steps:
+
+- Step 1. Download external dependencies (Can follow this [documentation in TensorRT-LLM 0.7.1](https://github.com/NVIDIA/TensorRT-LLM/tree/v0.7.1/windows#quick-start))
+- Step 3.1: Run [setup_env.ps1](https://github.com/NVIDIA/TensorRT-LLM/blob/v0.7.1/windows/setup_env.ps1) to install CUDA 12, Python 3.10 and Microsoft MPI
+- Step 3.2: Download [TensorRT 9.2.0.5](https://developer.nvidia.com/downloads/compute/machine-learning/tensorrt/9.2.0/tensorrt-9.2.0.5.windows10.x86_64.cuda-12.2.llm.beta.zip), unzip it and run `setx Path "%Path%;C:\<specific_path>\TensorRT-9.2.0.5\lib"` in order for `TensorRT-LLM` to be able to use. Then run `pip install TensorRT-9.2.0.5\python\tensorrt-9.2.0.post12.dev5-cp310-none-win_amd64.whl` to install Python TensorRT. Test the installation by running `python -c "import tensorrt as trt; print(trt.__version__)"`
+- Step 3.3: Install TensorRT-LLM by running quick command `pip install tensorrt_llm==0.7.1 --extra-index-url https://pypi.nvidia.com  --extra-index-url https://download.pytorch.org/whl/cu121` and verify the installation by running `python -c "import tensorrt_llm; print(tensorrt_llm._utils.trt_version())"`
 - Step 2: Download model tokenizer and checkpoint. In this document, let's try to put up the `Llama2 13B chat hf INT4` model:
-  - [ ] Step 2.1: Download tokenizer related files from [Llama2 13B chat hf chat](https://huggingface.co/meta-llama/Llama-2-13b-chat-hf/tree/main) with files: `config.json`, `tokenizer.config`, `tokenizer.json` and `tokenizer.model`. Put it in `model\llama2_13b_chat\tokenizer` folder
-  - [ ] Step 2.2: Download checkpoint NVIDIA shared on NGC for [LLama2 13B HF Chat INT4 checkpoint version 1.3](https://catalog.ngc.nvidia.com/orgs/nvidia/models/llama2-13b/files?version=1.3) with 2 files `llama_tp1.json` and `llama_tp1_rank0.npz` as checkpoint to `model\llama2_13b_chat\ckpt_int4`. The way to create this from scratch is [here for Llama based model](https://github.com/NVIDIA/TensorRT-LLM/tree/main/examples/llama#llama-v2-updates).
+  - Step 2.1: Download tokenizer related files from [Llama2 13B chat hf chat](https://huggingface.co/meta-llama/Llama-2-13b-chat-hf/tree/main) with files: `config.json`, `tokenizer.config`, `tokenizer.json` and `tokenizer.model`. Put it in `model\llama2_13b_chat\tokenizer` folder
+  - Step 2.2: Download checkpoint NVIDIA shared on NGC for [LLama2 13B HF Chat INT4 checkpoint version 1.3](https://catalog.ngc.nvidia.com/orgs/nvidia/models/llama2-13b/files?version=1.3) with 2 files `llama_tp1.json` and `llama_tp1_rank0.npz` as checkpoint to `model\llama2_13b_chat\ckpt_int4`. The way to create this from scratch is [here for Llama based model](https://github.com/NVIDIA/TensorRT-LLM/tree/main/examples/llama#llama-v2-updates).
 - Step 3: Build the model engine so that TensorRT-LLM can load with
   - `model_dir`: This is the tokenizer we downloaded in step 2.1 (`model\llama2_13b_chat\tokenizer`)
   - `quant_ckpt_path`: This is the path to ckpt we download in step 2.2 (`model\llama2_13b_chat\ckpt_int4`)
@@ -39,83 +40,84 @@ python build.py --model_dir <> --quant_ckpt_path <> --dtype float16 --use_gpt_at
 ```
 
 - Step 4: Once we have secure the `.engine` file, let's put up the webserver
-  - [ ] Step 4.1. Install project dependencies by `pip install -r requirements.txt`
-  - [ ] Step 4.2. Run the webserver by: `python app.py --trt_engine_path model\engine --trt_engine_name llama_float16_tp1_rank0.engine --tokenizer_dir_path model\tokenizer --port 8080`
-  - [ ] Step 4.3. Verify the the API
 
-```bat
-curl --location 'http://localhost:8080/chat/completions' \
---header 'Content-Type: application/json' \
---header 'Accept: */*' \
---header 'Access-Control-Allow-Origin: *' \
---data '{
-    "messages": [
-        {
-            "content": "Please write a long and sad story",
-            "role": "user"
-        }
-    ],
-    "stream": true,
-    "model": "gpt-3.5-turbo",
-    "max_tokens": 2000
-}'
+  - Step 4.1. Install project dependencies by `pip install -r requirements.txt`
+  - Step 4.2. Run the webserver by: `python app.py --trt_engine_path model\engine --trt_engine_name llama_float16_tp1_rank0.engine --tokenizer_dir_path model\tokenizer --port 8080`
+  - Step 4.3. Verify the the API
 
-curl --location 'http://localhost:8080/chat/completions' \
---header 'Content-Type: application/json' \
---header 'Accept: */*' \
---header 'Access-Control-Allow-Origin: *' \
---data '{
-    "messages": [
-        {
-            "content": "Please write a long and sad story",
-            "role": "user"
-        }
-    ],
-    "stream": false,
-    "model": "gpt-3.5-turbo",
-    "max_tokens": 2000
-}'
-```
+    ```bat
+    curl --location 'http://localhost:8080/chat/completions' \
+    --header 'Content-Type: application/json' \
+    --header 'Accept: */*' \
+    --header 'Access-Control-Allow-Origin: *' \
+    --data '{
+        "messages": [
+            {
+                "content": "Please write a long and sad story",
+                "role": "user"
+            }
+        ],
+        "stream": true,
+        "model": "gpt-3.5-turbo",
+        "max_tokens": 2000
+    }'
+
+    curl --location 'http://localhost:8080/chat/completions' \
+    --header 'Content-Type: application/json' \
+    --header 'Accept: */*' \
+    --header 'Access-Control-Allow-Origin: *' \
+    --data '{
+        "messages": [
+            {
+                "content": "Please write a long and sad story",
+                "role": "user"
+            }
+        ],
+        "stream": false,
+        "model": "gpt-3.5-turbo",
+        "max_tokens": 2000
+    }'
+    ```
 
 - Step 5: Test the local API with Jan
-  - [ ] Step 5.1: Download Jan at https://jan.ai/
-  - [ ] Step 5.2: Update the app in order to use localhost API
-    - Update `C:\Users\<username>\jan\engines\openai.json` as follow in order to connect to the API server we have in step 4
-    ```json
-    {
-      "full_url": "http://127.0.0.1:8080/v1/chat/completions",
-      "api_key": "sk-<your key here>"
-    }
-    ```
-    - Create new model to use this by creating a new folder with name as `local-tensorrt-llm-openai` in `C:\Users\<username>\jan\models\` and a `model.json` in `C:\Users\<username>\jan\models\local-tensorrt-llm-openai`
-    ```json
-    {
-      "sources": [
-        {
-          "url": "https://127.0.0.1:8080/models"
-        }
-      ],
-      "id": "local-tensorrt-llm-openai",
-      "object": "model",
-      "name": "Local TensorRT-LLM",
-      "version": "1.0",
-      "description": "Local TensorRT-LLM",
-      "format": "api",
-      "settings": {},
-      "parameters": {
-        "max_tokens": 4096,
-        "temperature": 0.7
-      },
-      "metadata": {
-        "author": "NVIDIA",
-        "tags": []
-      },
-      "engine": "openai"
-    }
-    ```
-- Open the app, go to Hub and choose `Local TensorRT-LLM` to use
+  - Step 5.1: Download Jan at https://jan.ai/
+  - Step 5.2: Update the app in order to use localhost API
+  - Step 5.3: Update `C:\Users\<username>\jan\engines\openai.json` as follow in order to connect to the API server we have in step 4
+  ```json
+  {
+    "full_url": "http://127.0.0.1:8080/v1/chat/completions",
+    "api_key": "sk-<your key here>"
+  }
+  ```
+  - Step 5.4:Create new model to use this by creating a new folder with name as `local-tensorrt-llm-openai` in `C:\Users\<username>\jan\models\` and a `model.json` in `C:\Users\<username>\jan\models\local-tensorrt-llm-openai`
+  ```json
+  {
+    "sources": [
+      {
+        "url": "https://127.0.0.1:8080/models"
+      }
+    ],
+    "id": "local-tensorrt-llm-openai",
+    "object": "model",
+    "name": "Local TensorRT-LLM",
+    "version": "1.0",
+    "description": "Local TensorRT-LLM",
+    "format": "api",
+    "settings": {},
+    "parameters": {
+      "max_tokens": 4096,
+      "temperature": 0.7
+    },
+    "metadata": {
+      "author": "NVIDIA",
+      "tags": []
+    },
+    "engine": "openai"
+  }
+  ```
+- Step 5.5: Open the app, go to Hub and choose `Local TensorRT-LLM` to use
   ![Hub](./assets/hub.png)
-- Try to chat with the local model, the performance is impressive with the model on NVIDIA 3090 24GB VRAM (64.66 token/s). The VRAM usage is around 95%.
+- Step 5.6: Try to chat with the local model, the performance is impressive with the model on NVIDIA 3090 24GB VRAM (64.66 token/s). The VRAM usage is around 95%.
   ![Chat](./assets/chat.png)
 
 ### Windows Container
