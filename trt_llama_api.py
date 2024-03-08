@@ -430,7 +430,7 @@ class TrtLlmAPI(BaseModel):
         self._model.setup(input_lengths.size(0), max_input_length, self._max_new_tokens, 1)  # beam size is set to 1
         self._sampling_config.temperature = temperature
         output_ids = self._model.decode(input_ids, input_lengths, self._sampling_config, streaming=True)
-
+        
         def gen() -> flask.Response:
             thisdict = dict(truncated=False,
                             prompt_tokens=max_input_length,
@@ -440,7 +440,8 @@ class TrtLlmAPI(BaseModel):
                             slot_id=1,
                             stop=False)
             resData = make_resData_stream(thisdict, chat=chat, start=True)
-            yield 'data: {}\n'.format(json.dumps(resData))
+            yield f"data: {json.dumps(resData)}\n\n"
+
 
             text = ""
             dictForDelta = dict(truncated=False,
@@ -464,7 +465,7 @@ class TrtLlmAPI(BaseModel):
                     dictForDelta["content"] = delta_text.removesuffix(EOS)
                     dictForDelta["completion_tokens"] = len(output_token_ids)
                     resData = make_resData_stream(dictForDelta, chat=chat)
-                    yield 'data: {}\n'.format(json.dumps(resData))
+                    yield f"data: {json.dumps(resData)}\n\n"
 
                     for stop_string in stop_strings:
                         if stop_string in text:
@@ -476,6 +477,6 @@ class TrtLlmAPI(BaseModel):
             dictForDelta["content"] = ""
             dictForDelta["stop"] = True
             resData = make_resData_stream(dictForDelta, chat=chat)
-            yield 'data: {}\n'.format(json.dumps(resData))
+            yield f"data: {json.dumps(resData)}\n\n"
 
         return flask.Response(gen(), mimetype='text/event-stream')
