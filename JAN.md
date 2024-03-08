@@ -6,6 +6,17 @@ In this note, I will share about Jan integration with TensorRT-LLM on Windows
 - [Windows Container](#windows-container)
 - [Windows 1-click installer](#windows-1-click-installer)
 
+## Version compatibility
+
+- Windows 11, NVIDIA GPU 3090 (GPU arch: `80-real`/ `sm80`)
+- Tensorrt_LLM 0.7.1 (not the latest now at 0.8.0)
+- Python 3.10
+- Cuda 12.2.2_537.13
+- CuDNN 8.9.7.29
+- VS 17
+- MSFT MPI v10.1.1
+- TensorRT 9.2.0.5
+
 ## Preparation for TensorRT-LLM
 
 ### Windows Bare-Metal
@@ -120,8 +131,12 @@ curl --location 'http://localhost:8080/chat/completions' \
     "experimental": true
   }
   ```
-- Step 2: Run `docker build tensorrt_llm_windows .`. This will prepare the environment for `TensorRT-LLM` automatically. See [Dockerfile](./Dockerfile)
-- Step 3: Run `docker run -ti -p 8080:8080 tensorrt_llm_windows`. This will run `entrypoint.ps1` by default to install `tensorrt_llm` here because `tensorrt_llm` python installation requires GPU access, only `docker run` can provide it
+- Step 2: Prepare big `.exe`/ dependencies folder to save time
+  - CUDA 12: [Download](https://developer.download.nvidia.com/compute/cuda/12.2.2/local_installers/cuda_12.2.2_537.13_windows.exe)
+  - CVTX: [Download](https://drive.google.com/file/d/1-pZ2vY1crveDxdojeklfC9nMS3Uph6E3/view?usp=sharing) - or you can install CUDA 11.2 and untick everything except for Nsight CVTX and copy the folder to this folder with the name as `NvToolsExt`
+  - CuDNN 8.9.7: [Download](https://developer.nvidia.com/downloads/compute/cudnn/secure/8.9.7/local_installers/12.x/cudnn-windows-x86_64-8.9.7.29_cuda12-archive.zip/) then unzip to this folder
+- Step 3: Run `docker build tensorrt_llm_windows .`. This will prepare the environment for `TensorRT-LLM` automatically. See [Dockerfile](./Dockerfile)
+- Step 4: Run `docker run -ti -p 8080:8080 tensorrt_llm_windows`. This will run `entrypoint.ps1` by default to install `tensorrt_llm` here because `tensorrt_llm` python installation requires GPU access, only `docker run` can provide it
 
   - There is a bug here that the author discover
 
@@ -159,7 +174,7 @@ curl --location 'http://localhost:8080/chat/completions' \
     - The API opens up at port `8080`
     ````
 
-- Step 4: We can follow `Step 5` as above to use Jan
+- Step 5: We can follow `Step 5` as above to use Jan
 
 ### Windows 1-click installer
 
