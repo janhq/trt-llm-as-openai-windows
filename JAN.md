@@ -10,7 +10,7 @@ In this note, I will share about Jan integration with TensorRT-LLM on Windows
 
 - Windows 11, NVIDIA GPU 3090 (GPU arch: `80-real`/ `sm80`)
 - Tensorrt_LLM 0.7.1 (not the latest now at 0.8.0) - See in [detail](https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/)
-- Python 3.10 [Installation](https://www.python.org/ftp/python/3.10.11/python-3.10.11-amd64.exe -OutFile python-3.10.11.exe)
+- Python 3.10 [Installation](https://www.python.org/ftp/python/3.10.11/python-3.10.11-amd64.exe)
 - Cuda 12.2.2_537.13 [Download](https://developer.download.nvidia.com/compute/cuda/12.2.2/local_installers/cuda_12.2.2_537.13_windows.exe)
 - Cuda 11 NVTX (no cuda 11 installation)
 - CuDNN 8.9.7.29 [Download](https://developer.nvidia.com/downloads/compute/cudnn/secure/8.9.7/local_installers/12.x/cudnn-windows-x86_64-8.9.7.29_cuda12-archive.zip/)
